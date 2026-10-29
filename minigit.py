@@ -42,3 +42,55 @@ class Minigit():
     @property
     def passos(self):
         return self._passos
+
+
+    def criar_branch(self,nome):
+        if nome in self._branch:
+            raise ValueError(f'A branch {nome} já existe.')
+
+        commit_atual = self._branch[self._branch_atual]
+
+        if commit_atual is None:
+            raise ValueError('Não é possivrel criar uma branch em um repósitorio sem commits.')
+
+        self._branch[nome] = commit_atual
+
+        self._passos = 1
+
+
+    def trocar_branch(self,nome):
+        if nome not in self._branch:
+            raise ValueError(f'a branch {nome} não existe.')
+        self._branch_atual = nome
+        self._passos = 1
+
+
+    def mesclar(self,nome):
+        if nome not in self._branch:
+            raise ValueError(f'a branch {nome} não existe.')
+        if nome == self._branch_atual:
+            raise ValueError(f'não é possivel mesclar a branch atual com ela mesma.')
+
+        commit_atual = self._branch[self._branch_atual]
+        commit_alvo = self._branch[nome]
+
+        self._contador += 1
+        id_commit = f"c{self._contador}"
+        
+        # a lista de pais tem DOIS elementos
+        self._pais[id_commit] = [commit_atual, commit_alvo]
+        
+        self._mensagens[id_commit] = f"merge de {nome}"
+        self._branches[self._branch_atual] = id_commit
+        
+        self._passos = 1
+        return id_commit
+
+
+    @property
+    def branch_atual(self):
+        self._passos = 1
+        return self._branch_atual
+    
+r = Minigit()
+r.passos = 1
