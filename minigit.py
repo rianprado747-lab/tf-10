@@ -147,3 +147,63 @@ class Minigit():
         self._passos = passos
         return tuple(resultado)
     
+
+if __name__ == "__main__":
+    # ==========================================
+    # 1. ROTEIRO DE TESTES BÁSICO E TRATAMENTO DE ERROS
+    # ==========================================
+    def tentar(acao):
+        try:
+            acao()
+        except ValueError as erro:
+            print("erro:", erro)
+
+    git = Minigit()
+    git.commitar("primeiro commit")
+    print(git.passos)
+    git.commitar("segundo commit")
+    git.criar_branch("feature")
+    print(git.passos)
+    git.commitar("terceiro commit")
+    git.trocar_branch("feature")
+    git.commitar("quarto commit")
+    git.trocar_branch("main")
+    git.mesclar("feature")
+    
+    print(git.pais("c5"))
+    print(git.log(), git.passos)
+    print(git.mensagem("c3"), git.passos)
+    print(git.buscar("quarto"), git.passos)
+    print(git.merges())
+    
+    git.trocar_branch("feature")
+    print(git.log(), git.passos)
+    git.trocar_branch("main")
+
+    # Tentativas que devem falhar e imprimir o erro
+    tentar(lambda: git.trocar_branch("inexistente"))
+    tentar(lambda: git.criar_branch("main"))
+    tentar(lambda: git.mesclar("main"))
+    tentar(lambda: git.pais("c99"))
+
+    print("\n" + "="*50 + "\n")
+
+    # ==========================================
+    # 2. MEDIÇÃO DE COMPLEXIDADE (LEITURA VS ESCRITA)
+    # ==========================================
+    def medir(quantidade):
+        repo_teste = Minigit()
+        for i in range(quantidade):
+            repo_teste.commitar(f"commit {i}")
+            
+        passos_commitar = repo_teste.passos
+        repo_teste.log()
+        passos_log = repo_teste.passos
+        
+        return passos_commitar, passos_log
+
+    print("commits   passos do commitar   passos do log")
+    for qtd in [10, 100, 1000]:
+        p_com, p_log = medir(qtd)
+        # Formatação de string para alinhar a tabela corretamente
+        print(f"{qtd:<10}{p_com:<21}{p_log}")
