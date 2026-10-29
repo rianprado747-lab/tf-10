@@ -1,3 +1,4 @@
+from collections import deque
 class Minigit():
     __slots__ = ['_pais','_mensagem','_branch','_contador','_passos','_branch_atual']
 
@@ -80,8 +81,8 @@ class Minigit():
         # a lista de pais tem DOIS elementos
         self._pais[id_commit] = [commit_atual, commit_alvo]
         
-        self._mensagens[id_commit] = f"merge de {nome}"
-        self._branches[self._branch_atual] = id_commit
+        self._mensagem[id_commit] = f"merge de {nome}"
+        self._branch[self._branch_atual] = id_commit
         
         self._passos = 1
         return id_commit
@@ -91,6 +92,58 @@ class Minigit():
     def branch_atual(self):
         self._passos = 1
         return self._branch_atual
+
+
+    def log(self):
+        commit_inicial = self._branch[self._branch_atual]
+        if commit_inicial is None:
+            self._passos = 1
+            return()
+
+        fila = deque([commit_inicial])
+        anotados = set()
+        resultado = []
+        passos = 0
+
+        while fila:
+            passos += 1
+            atual = fila.popleft()
+
+            if atual not in anotados:
+                anotados.add(atual)
+                resultado.append(atual)
+
+                for pai in self._pais[atual]:
+                    fila.append(pai)
+
+        self._passos = passos
+        return tuple(resultado)
+
+    def buscar(self, texto):
+        passos = 0 
+        for i in range (1, self._contador + 1):
+            passos += 1
+            id_commit = f'c{i}'
+
+            if texto in self._mensagem[id_commit]:
+                self._passos = passos
+                return id_commit
+
+        self._passos = passos
+        return None
+
+
+    def merges(self):
+        passos = 0
+        resultado = []
+
+        for i in range(1, self._contador + 1):
+            passos += 1
+            id_commit = f'c{i}'
+
+            if len(self._pais[id_commit]) > 1:
+                resultado.append(id_commit)
+
+        self._passos = passos
+        return tuple(resultado)
     
-r = Minigit()
-r.passos = 1
