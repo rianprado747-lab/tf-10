@@ -7,7 +7,7 @@ class Minigit():
         self._mensagem = dict() # mapeia id do commit -> "mensagem do commit"
         self._branch = {'main': None}
         self._contador = 0
-        self._passos = 1
+        self._passos = 0
         self._branch_atual = 'main'
 
 
@@ -24,7 +24,7 @@ class Minigit():
             self._pais[id_commit] = [pai_atual]
         self._mensagem[id_commit] = mensagem
         self._branch[self._branch_atual] = id_commit
-        self._passos = 1
+        self._passos = 2
         return id_commit
 
 
@@ -84,7 +84,7 @@ class Minigit():
         self._mensagem[id_commit] = f"merge de {nome}"
         self._branch[self._branch_atual] = id_commit
         
-        self._passos = 1
+        self._passos = 2
         return id_commit
 
 
@@ -97,16 +97,14 @@ class Minigit():
     def log(self):
         commit_inicial = self._branch[self._branch_atual]
         if commit_inicial is None:
-            self._passos = 1
+            self._passos = 0
             return()
 
         fila = deque([commit_inicial])
         anotados = set()
         resultado = []
-        passos = 0
 
         while fila:
-            passos += 1
             atual = fila.popleft()
 
             if atual not in anotados:
@@ -116,20 +114,20 @@ class Minigit():
                 for pai in self._pais[atual]:
                     fila.append(pai)
 
-        self._passos = passos
+        self._passos = len(resultado)
         return tuple(resultado)
 
     def buscar(self, texto):
-        passos = 0 
+        passos_gastos = 0 
         for i in range (1, self._contador + 1):
-            passos += 1
+            passos_gastos += 1
             id_commit = f'c{i}'
 
             if texto in self._mensagem[id_commit]:
-                self._passos = passos
+                self._passos = passos_gastos
                 return id_commit
 
-        self._passos = passos
+        self._passos = passos_gastos
         return None
 
 
@@ -144,7 +142,7 @@ class Minigit():
             if len(self._pais[id_commit]) > 1:
                 resultado.append(id_commit)
 
-        self._passos = passos
+        self._passos = passos 
         return tuple(resultado)
     
 
